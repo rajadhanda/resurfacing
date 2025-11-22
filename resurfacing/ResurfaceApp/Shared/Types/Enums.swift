@@ -17,6 +17,15 @@ enum ItemCategory: String, Codable, CaseIterable, Equatable, Hashable {
     /// An inspirational or reflective quote (e.g., wisdom, motivation, thoughts).
     case quote
     
+    /// News, articles, blog posts, or long-form reading content.
+    ///
+    /// This category is used for content that is meant to be read in-depth,
+    /// such as news articles, blog posts, newsletters, long-form journalism,
+    /// or any substantial written content that requires focused reading time.
+    /// Reading items are typically surfaced during morning windows or commute
+    /// windows when users have time for longer-form content consumption.
+    case reading
+    
     /// No confident category could be assigned.
     ///
     /// **Important**: This is NOT the same as "missing data" or an error state.
@@ -43,6 +52,14 @@ enum StackType: String, Codable, CaseIterable, Equatable, Hashable {
     /// Mental and reflective content (quotes, mindset, wisdom).
     case mind
     
+    /// News, articles, and long-form reading content.
+    ///
+    /// This stack groups reading-related content that benefits from dedicated
+    /// reading time. Items in this stack are typically surfaced during:
+    /// - Morning windows (when users have time for news/articles)
+    /// - Commute windows (when users can engage with longer content)
+    case reading
+    
     /// Catch-all for miscellaneous or future content types.
     case other
     
@@ -57,6 +74,8 @@ enum StackType: String, Codable, CaseIterable, Equatable, Hashable {
             return "Body"
         case .mind:
             return "Mind"
+        case .reading:
+            return "Reading"
         case .other:
             return "Other"
         }
@@ -74,6 +93,8 @@ enum StackType: String, Codable, CaseIterable, Equatable, Hashable {
             return "💪"
         case .mind:
             return "🧠"
+        case .reading:
+            return "📚"
         case .other:
             return "📦"
         }
@@ -192,6 +213,43 @@ enum TimeBucket: String, Codable, CaseIterable, Equatable, Hashable {
         default:
             // 10:00 PM - 4:59 AM (wraps around midnight)
             return .night
+        }
+    }
+}
+
+// MARK: - ItemCategory → StackType Mapping
+
+extension ItemCategory {
+    /// Maps a semantic category to its default high-level stack.
+    ///
+    /// This mapping provides a deterministic way to derive the stack from
+    /// the category. The stack is used for UI theming, time-based resurfacing
+    /// logic, and organizing items into broader buckets.
+    ///
+    /// **Mapping Rules**:
+    /// - `.recipe` → `.food` (recipes belong to the food stack)
+    /// - `.workout` → `.body` (workouts belong to the body stack)
+    /// - `.quote` → `.mind` (quotes belong to the mind stack)
+    /// - `.reading` → `.reading` (reading content has its own dedicated stack)
+    /// - `.none` → `.other` (uncategorized items go to other)
+    ///
+    /// **Future Extensibility**:
+    /// - This mapping can be overridden or extended in the future if we need
+    ///   context-aware stack assignment (e.g., a recipe from a fitness blog
+    ///   might map to `.body` instead of `.food`).
+    /// - For now, this simple one-to-one mapping is sufficient for MVP.
+    var defaultStack: StackType {
+        switch self {
+        case .recipe:
+            return .food
+        case .workout:
+            return .body
+        case .quote:
+            return .mind
+        case .reading:
+            return .reading
+        case .none:
+            return .other
         }
     }
 }

@@ -12,6 +12,9 @@ import Foundation
 /// - Framework-agnostic: no UIKit, SwiftUI, or Core Data imports.
 /// - Updates to items (e.g., state changes, counter increments) happen by creating
 ///   new instances with modified values, not by mutation.
+/// - Reading items are treated identically to other categories here; the
+///   `category` + `stack` pair is what informs downstream behaviour and widget
+///   presentation.
 ///
 /// **Mapping to Core Data**:
 /// - A separate layer (Storage) handles conversion between `StoredItem` and Core Data entities.
@@ -189,4 +192,3 @@ extension StoredItem {
         )
     }
 }
-

@@ -29,18 +29,19 @@ struct ClassificationResult: Codable, Equatable {
     /// confidently assign a specific category, it will use `.none`.
     let category: ItemCategory
     
-    /// High-level stack bucket derived from the category (food, body, mind, other).
+    /// High-level stack bucket derived from the category (food, body, mind, reading, other).
     ///
     /// The stack provides a coarser grouping for UI theming and behaviour engine
     /// logic. It's typically derived deterministically from the category:
     /// - `.recipe` → `.food`
     /// - `.workout` → `.body`
     /// - `.quote` → `.mind`
-    /// - `.none` → `.other`
+    /// - `.reading` → `.reading`
+    /// - `.none` → `.other` (catch-all)
     ///
-    /// **Note**: In the current design, stack is explicitly provided by the classifier
-    /// rather than computed from category. This allows for future flexibility if
-    /// we want to introduce categories that could map to multiple stacks contextually.
+    /// **Note**: Stack can be explicitly provided by the classifier or derived
+    /// from `category.defaultStack` if omitted. This keeps flexibility for future
+    /// context-aware mappings while maintaining a safe default today.
     let stack: StackType
     
     /// Confidence score in the range [0.0, 1.0].
@@ -62,16 +63,17 @@ struct ClassificationResult: Codable, Equatable {
     ///
     /// - Parameters:
     ///   - category: The predicted semantic category.
-    ///   - stack: The high-level stack bucket corresponding to the category.
+    ///   - stack: The high-level stack bucket corresponding to the category. Defaults to `category.defaultStack`.
     ///   - confidence: Raw confidence score (will be clamped to [0, 1]).
     ///
     /// **Error Handling**: This initializer never fails. Out-of-range confidence
     /// values are silently clamped rather than causing a crash or error.
     ///
     /// **Performance**: Clamping is O(1) with minimal overhead (two simple comparisons).
-    init(category: ItemCategory, stack: StackType, confidence: Double) {
+    init(category: ItemCategory, stack: StackType? = nil, confidence: Double) {
         self.category = category
-        self.stack = stack
+        // Allow caller to provide an explicit stack, otherwise default based on category.
+        self.stack = stack ?? category.defaultStack
         // Clamp to [0, 1] as a defensive measure against buggy classifiers.
         // max(0.0, x) ensures x >= 0, then min(1.0, x) ensures x <= 1.
         self.confidence = min(max(confidence, 0.0), 1.0)

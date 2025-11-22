@@ -118,5 +118,22 @@ struct FeatureVector: Codable, Equatable {
     /// - "'Success is not final' - Churchill" → `true`
     /// - "Here's a great recipe for pasta" → `false`
     let hasQuoteMarkers: Bool
+    
+    /// Heuristic flag: presence of reading markers (e.g., "article", "newsletter", "today's news").
+    ///
+    /// Detects terminology and patterns commonly associated with news articles,
+    /// blog posts, newsletters, and long-form reading content. This helps the
+    /// classifier identify reading-related captures without requiring deep NLP.
+    ///
+    /// **Examples**:
+    /// - "Read this article about..." → `true`
+    /// - "Today's newsletter" → `true`
+    /// - "Breaking news: ..." → `true`
+    /// - "Check out this recipe" → `false`
+    ///
+    /// **Note**: This flag is planned for future use in the classifier. Even if
+    /// not fully utilized in MVP, having it in the feature vector prepares the
+    /// system for more sophisticated reading content detection.
+    let hasReadingMarkers: Bool
 }
 
