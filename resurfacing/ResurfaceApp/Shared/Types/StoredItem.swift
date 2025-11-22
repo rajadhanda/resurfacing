@@ -1,6 +1,6 @@
 import Foundation
 
-/// Canonical representation of a saved item in the Meaning Engine.
+/// Canonical representation of a saved item in Resurface.
 ///
 /// **Purpose**:
 /// - This is the primary domain model used throughout the app after capture and classification.
